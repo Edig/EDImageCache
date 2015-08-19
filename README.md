@@ -27,8 +27,9 @@ This only explains the use of the Cache as is implemented in EDAsyncImageView
 
 To get the image from cache, if not founded it will downloaded
 2-.
-````getImageFromURL(url: NSURL, withCompletionHandler completionHandler:((image: UIImage, url: NSURL) -> Void)? = nil) {
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))````
+
+```getImageFromURL(url: NSURL, withCompletionHandler completionHandler:((image: UIImage, url: NSURL) -> Void)? = nil) {
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))```
 
 3-. If you want to remove an specific image from RAM you need to clean it like this
 
