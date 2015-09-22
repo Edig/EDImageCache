@@ -57,7 +57,7 @@ class EDCacheImages: NSObject {
     }
     
     private func asyncDownloadImageFromURL(url: NSURL) -> UIImage? {
-        //        println("Downloading image \(url.absoluteString!.md5)")
+        //        print("Downloading image \(url.absoluteString!.md5)")
         if let data = NSData(contentsOfURL: url) {
             
             //Now we cache the image on the disk and RAM
@@ -85,14 +85,14 @@ class EDCacheImages: NSObject {
     
     private func cacheImageOnRAM(image:UIImage, withName name:String) {
         //Cache image on RAM
-        //        println("saving cached image - RAM \(name.md5)")
+        //        print("saving cached image - RAM \(name.md5)")
         cachedImages.setObject(image, forKey: name.md5)
     }
     
     private func cacheImageOnDisk(image:UIImage, withName name:String) {
         //Cache image on disk
         
-        //        println("saving cached image - DISK \(name.md5)")
+        //        print("saving cached image - DISK \(name.md5)")
         let path = "\(NSTemporaryDirectory())\(name.md5).png"
         if let imageRepresentation = UIImagePNGRepresentation(image) {
             imageRepresentation.writeToFile(path, atomically: true)
@@ -103,7 +103,7 @@ class EDCacheImages: NSObject {
     private func getCacheImageForName(name:String) -> UIImage? {
         //Check if image is cached on RAM
         if let img = cachedImages.objectForKey(name.md5) as? UIImage {
-            //            println("getting cached image RAM \(name.md5)")
+            //            print("getting cached image RAM \(name.md5)")
             return img
         }
         
