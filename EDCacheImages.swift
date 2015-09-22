@@ -3,10 +3,11 @@
 //  Tutton
 //
 //  Created by Eduardo Iglesias on 8/14/15.
-//  Copyright (c) 2015 CreApps. All rights reserved.
+//  Copyright (c) 2015. All rights reserved.
 //
 
 import UIKit
+import ImageIO
 
 let _sharedCache: EDCacheImages = { EDCacheImages() }()
 
@@ -20,7 +21,7 @@ class EDCacheImages: NSObject {
     }
     
     func memoryWarning() {
-        println("Removing RAM cache")
+        print("Memory Warning: !! Removing RAM cache")
         self.cachedImages.removeAllObjects()
     }
     
@@ -31,7 +32,7 @@ class EDCacheImages: NSObject {
         dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
             
             //Check if cached images exist
-            if let image = self.getCacheImageForName(url.absoluteString!) {
+            if let image = self.getCacheImageForName(url.absoluteString) {
                 
                 //Image exist
                 dispatch_async(dispatch_get_main_queue()) {
@@ -56,12 +57,19 @@ class EDCacheImages: NSObject {
     }
     
     private func asyncDownloadImageFromURL(url: NSURL) -> UIImage? {
-        println("Downloading image \(url.absoluteString!.md5)")
+        //        println("Downloading image \(url.absoluteString!.md5)")
         if let data = NSData(contentsOfURL: url) {
-            if let img = UIImage(data: data) {
-                //We cache the image in RAM nad Disk
-                cacheImage(img, withName: url.absoluteString!)
-                return img
+            
+            //Now we cache the image on the disk and RAM
+            
+            if let imageRef = CGImageSourceCreateWithData(data as CFDataRef, nil) {
+                if let imageSource = CGImageSourceCreateImageAtIndex(imageRef, 0, nil) {
+                    
+                    let img = UIImage(CGImage: imageSource)
+                    cacheImage(img, withName: url.absoluteString)
+                    
+                    return img
+                }
             }
         }
         
@@ -77,34 +85,36 @@ class EDCacheImages: NSObject {
     
     private func cacheImageOnRAM(image:UIImage, withName name:String) {
         //Cache image on RAM
-        println("saving cached image - RAM \(name.md5)")
+        //        println("saving cached image - RAM \(name.md5)")
         cachedImages.setObject(image, forKey: name.md5)
     }
     
     private func cacheImageOnDisk(image:UIImage, withName name:String) {
         //Cache image on disk
-        println("saving cached image - DISK \(name.md5)")
-        let data = UIImagePNGRepresentation(image)
-        let fileManager = NSFileManager.defaultManager()
+        
+        //        println("saving cached image - DISK \(name.md5)")
         let path = "\(NSTemporaryDirectory())\(name.md5).png"
-        fileManager.createFileAtPath(path, contents: data, attributes: nil)
+        if let imageRepresentation = UIImagePNGRepresentation(image) {
+            imageRepresentation.writeToFile(path, atomically: true)
+        }
     }
     
     // MARK: Get cached images
     private func getCacheImageForName(name:String) -> UIImage? {
         //Check if image is cached on RAM
         if let img = cachedImages.objectForKey(name.md5) as? UIImage {
-            println("getting cached image RAM \(name.md5)")
+            //            println("getting cached image RAM \(name.md5)")
             return img
         }
         
-        //Check if is cached in DISK
         let path = "\(NSTemporaryDirectory())\(name.md5).png"
-        if let img = UIImage(contentsOfFile: path) {
-            //Cache image on RAM
-            println("getting cached image DISK \(name.md5)")
-            cacheImageOnRAM(img, withName: name)
-            return img
+        if let imageData = NSData(contentsOfFile: path) {
+            if let imageRef = CGImageSourceCreateWithData(imageData, nil) {
+                if let imageSource = CGImageSourceCreateImageAtIndex(imageRef, 0, nil) {
+                    
+                    return UIImage(CGImage: imageSource)
+                }
+            }
         }
         
         return nil
@@ -114,5 +124,5 @@ class EDCacheImages: NSObject {
     func removeCacheImageOnRamForName(name: String) {
         cachedImages.removeObjectForKey(name.md5)
     }
-
+    
 }

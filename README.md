@@ -1,5 +1,5 @@
 # EDImageCache
-Simple Image cache in Swift
+Simple Image cache in Swift (Supports iOS 8 & 9)
 
 EDImageCache get download images and manage the cache, in saves it on the Hard Drive and RAM if the app is in use. 
 It automatically clean RAM when the system needs it. 
@@ -7,12 +7,19 @@ It automatically clean RAM when the system needs it.
 How to implement it:
 
 Pods:
+
+1-. Install the pod:
 ````
-pod ''
+pod 'EDImageCache' 
 ````
+2-. Add extra frameworks:
+Manually add ````CommonCrypto```` obj-c framework to your bridge-header
 
 Manual:
-- Just copy the files to your project
+- Copy all 3 files to your project
+- Add ````UIKit````, ````ImageIO```` and ````CommonCrypto````
+
+Note: ````CommonCrypto```` is a obj-c framework. You need a bridge-header 
 
 Implement it:
 You have to ways to control it.
@@ -26,22 +33,27 @@ This only explains the use of the Cache as is implemented in EDAsyncImageView
 1-. This is a shared cache so to aces you need to get like this: ```EDCacheImages.sharedCache()```
 
 To get the image from cache, if not founded it will downloaded
+
 2-.
 
-```getImageFromURL(url: NSURL, withCompletionHandler completionHandler:((image: UIImage, url: NSURL) -> Void)? = nil) {
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))```
+```swift
+getImageFromURL(url: NSURL, withCompletionHandler completionHandler:((image: UIImage, url: NSURL) -> Void)? = nil) {
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
+        ```
 
 3-. If you want to remove an specific image from RAM you need to clean it like this
 
-```removeCacheImageOnRamForName(name: String)```
+```swift
+removeCacheImageOnRamForName(name: String)
+```
 
 Usually the name is the URL
 
 # Todo:
-- Auto clean Disk Cache after time 
-- Queue requests, really helpful if you implement this on a tableView and do a long scroll
-- Prioritize requests, give prirority to handle important request first
-- Limiting thread, maximum the cores of the phones minus the UI thread
-- Cancel requests, if you doesn't need an image anymore be able to cancel a request or give it less priority
+- [ ] Auto clean Disk Cache after time 
+- [ ] Queue requests, really helpful if you implement this on a tableView and do a long scroll
+- [ ] Prioritize requests, give prirority to handle important request first
+- [ ] Limiting thread, maximum the cores of the phones minus the UI thread
+- [ ] Cancel requests, if you doesn't need an image anymore be able to cancel a request or give it less priority
 
 Any ideas or suggestions open a issue,
